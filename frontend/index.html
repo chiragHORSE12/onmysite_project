@@ -1,0 +1,60 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Parcel Delivery Demo</title>
+  <style>
+    body { font-family: system-ui, Arial; max-width: 800px; margin: 2rem auto; padding: 1rem; }
+    label { display:block; margin-top:0.5rem }
+    input { width:100%; padding:0.4rem; margin-top:0.25rem }
+    button { padding:0.6rem 1rem; margin-top:1rem }
+    pre { background:#f6f8fa; padding:1rem; overflow:auto }
+  </style>
+</head>
+<body>
+  <h1>Intelligent Parcel Delivery Demo</h1>
+  <p>Create a parcel and request pickup routes from the backend.</p>
+
+  <div>
+    <h3>Create Parcel</h3>
+    <label>Pickup lat<input id="p_lat" value="12.9716"></label>
+    <label>Pickup lng<input id="p_lng" value="77.5946"></label>
+    <label>Dropoff lat<input id="d_lat" value="12.9352"></label>
+    <label>Dropoff lng<input id="d_lng" value="77.6245"></label>
+    <label>Weight<input id="weight" value="2.5"></label>
+    <button onclick="createParcel()">Create Parcel</button>
+  </div>
+
+  <div>
+    <h3>Request Pickup</h3>
+    <label>Vehicle count<input id="vehicles" value="1"></label>
+    <button onclick="requestPickup()">Compute Routes</button>
+  </div>
+
+  <h3>Output</h3>
+  <pre id="out">No output yet.</pre>
+
+  <script>
+    const API = 'http://127.0.0.1:5000/api';
+    async function createParcel(){
+      const body={
+        pickup_lat: parseFloat(document.getElementById('p_lat').value),
+        pickup_lng: parseFloat(document.getElementById('p_lng').value),
+        dropoff_lat: parseFloat(document.getElementById('d_lat').value),
+        dropoff_lng: parseFloat(document.getElementById('d_lng').value),
+        weight: parseFloat(document.getElementById('weight').value)
+      };
+      const res = await fetch(API + '/parcels', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      const j = await res.json();
+      document.getElementById('out').innerText = 'Created:\n' + JSON.stringify(j, null, 2);
+    }
+    async function requestPickup(){
+      const vc = parseInt(document.getElementById('vehicles').value)||1;
+      const res = await fetch(API + '/pickup', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({vehicle_count: vc})});
+      const j = await res.json();
+      document.getElementById('out').innerText = 'Routes:\n' + JSON.stringify(j, null, 2);
+    }
+  </script>
+</body>
+</html>
